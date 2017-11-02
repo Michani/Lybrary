@@ -1,18 +1,21 @@
 package lybrary
 
+import org.codehaus.groovy.grails.plugins.InvalidVersionException
 import org.springframework.dao.DataIntegrityViolationException
 
 class AuthorController {
+
+    def authorService
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
     def index() {
         if(Author.count==0) redirect(action: "create")
-        else redirect(action: "list")
+        else redirect(action: "list", params: params)
     }
 
     def list() {
-        [authorInstanceList: Author.list(params), authorInstanceTotal: Author.count()]
+        [authorInstanceList: Author.list(), authorInstanceTotal: Author.count()]
     }
 
     def create() {
@@ -20,14 +23,11 @@ class AuthorController {
     }
 
     def save() {
-        def authorInstance = new Author(params)
-        if (!authorInstance.save(flush: true)) {
-            render(view: "create", model: [authorInstance: authorInstance])
+        if (!authorService.save(params)) {
+            render(view: "create", model: [authorInstance: Author(params)])
             return
         }
-
-        flash.message = message(code: 'default.created.message', args: [message(code: 'author.label', default: 'Author'), authorInstance.id])
-        redirect(action: "show", id: authorInstance.id)
+        redirect action: "list"
     }
 
     def show(Long id) {
@@ -52,27 +52,22 @@ class AuthorController {
         [authorInstance: authorInstance]
     }
 
-    def update(Long id, Long version) {
-        def authorInstance = Author.get(id)
-        if (!authorInstance) {
+    def update(Long id) {
+
+        try{
+            def authorInstance = Author.get(id)
+            authorService.update(authorInstance, params)
+        } catch (Exception) {
             flash.message = message(code: 'default.not.found.message', args: [message(code: 'author.label', default: 'Author'), id])
             redirect(action: "list")
             return
-        }
-
-        if (version != null) {
-            if (authorInstance.version > version) {
+        } catch (InvalidVersionException) {
                 authorInstance.errors.rejectValue("version", "default.optimistic.locking.failure",
                           [message(code: 'author.label', default: 'Author')] as Object[],
                           "Another user has updated this Author while you were editing")
                 render(view: "edit", model: [authorInstance: authorInstance])
                 return
-            }
-        }
-
-        authorInstance.properties = params
-
-        if (!authorInstance.save(flush: true)) {
+        } catch (NotActiveException) {
             render(view: "edit", model: [authorInstance: authorInstance])
             return
         }
