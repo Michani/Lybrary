@@ -2,7 +2,7 @@ dataSource {
     pooled = true
     driverClassName = "org.postgresql.Driver"
     username = "postgres"
-    password = "nfrtvbwe"
+    password = "postgres"
 }
 hibernate {
     cache.use_second_level_cache = true
@@ -27,17 +27,6 @@ environments {
         dataSource {
             dbCreate = "update"
             url = "jdbc:postgresql://localhost:5432/lybrary"
-            pooled = true
-            properties {
-               maxActive = -1
-               minEvictableIdleTimeMillis=1800000
-               timeBetweenEvictionRunsMillis=1800000
-               numTestsPerEvictionRun=3
-               testOnBorrow=true
-               testWhileIdle=true
-               testOnReturn=true
-               validationQuery="SELECT 1"
-            }
         }
     }
 }
