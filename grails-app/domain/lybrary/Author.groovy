@@ -4,7 +4,7 @@ class Author {
 
     String name
 
-    static  hasMany = [book:Book]
+    static hasMany = [book:Book]
 
     String toString() {
         return name
