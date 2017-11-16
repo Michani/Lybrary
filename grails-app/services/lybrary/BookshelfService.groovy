@@ -31,7 +31,7 @@ class BookshelfService {
         throw new Exception("No such bookshelf")
     }
 
-    def create(GrailsParameterMap params) {
+    def create(params) {
         return new Bookshelf(params).save()
     }
 

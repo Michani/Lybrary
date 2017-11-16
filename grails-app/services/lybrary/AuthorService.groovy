@@ -1,27 +1,28 @@
 package lybrary
 
 import org.codehaus.groovy.grails.plugins.InvalidVersionException
+import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
 
 class AuthorService {
 
-    def save(params) {
-        def a = new Author(params)
-        return a.save(flush: false)
+    def update(Long id, String name) {
+        Author author = Author.get(id)
+        if (author) {
+            author.name = name
+            return author.save()
+        }
+        throw new Exception("No such author")
     }
 
-    def update(a, params) {
-        if (!a) throw new Exception()
-        if (a.version != null) {
+    def create(params) {
+        return new Author(params).save()
+    }
 
-            if (a.version > version) {
-                throw new InvalidVersionException()
-            }
+    def delete(Long id){
+        def author = Author.get(id)
+        if (author) {
+            return author.delete()
         }
-
-        a.properties = params
-
-        if (!a.save(flush: true)) {
-            throw new NotActiveException()
-        }
+        throw new Exception("No such author")
     }
 }

@@ -34,7 +34,7 @@
                 <td><g:link action="show" id="${bookshelf.id}">${bookshelf.name}</g:link></td>
                 <td>
                     <g:each in="${bookshelf.books}" var="book">
-                        ${book.name}<br/>
+                        <g:link controller="book" action="show" id="${book.id}">${book.name}</g:link><br/>
                     </g:each>
                 </td>
                 <td><g:link action="delete" id="${bookshelf.id}">Remove</g:link><g:link action="edit" id="${bookshelf.id}">Edit</g:link></td>

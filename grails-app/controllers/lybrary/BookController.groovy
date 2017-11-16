@@ -4,100 +4,55 @@ import org.springframework.dao.DataIntegrityViolationException
 
 class BookController {
 
-    static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
+    def bookService
 
     def index() {
         if(Book.count==0) redirect(action: "create")
-        else redirect(action: "list", params: params)
+        else redirect(action: "list")
     }
 
-    def list(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
-        [bookInstanceList: Book.list(params), bookInstanceTotal: Book.count()]
+    def list() {
+        render(view: "list", model: [authors: Book.list(params).sort {it.id}])
     }
 
     def create() {
-        [bookInstance: new Book(params)]
+        render(view: "create")
     }
 
     def save() {
-        def bookInstance = new Book(params)
-        if (!bookInstance.save(flush: true)) {
-            render(view: "create", model: [bookInstance: bookInstance])
-            return
+        Book book
+        if (params.id) {
+            book = bookService.update(params.long('id'), params.name)
+        } else {
+            book = bookService.create(params)
         }
-
-        flash.message = message(code: 'default.created.message', args: [message(code: 'book.label', default: 'Book'), bookInstance.id])
-        redirect(action: "show", id: bookInstance.id)
+        redirect(action: "show", id: book.id)
     }
 
     def show(Long id) {
-        def bookInstance = Book.get(id)
-        if (!bookInstance) {
-            flash.message = message(code: 'default.not.found.message', args: [message(code: 'book.label', default: 'Book'), id])
-            redirect(action: "list")
-            return
+        def book = Book.get(id)
+        if (!book) {
+            return redirect(action: "list")
         }
-
-        [bookInstance: bookInstance]
+        render(view: "show", model: [book: book])
     }
 
     def edit(Long id) {
-        def bookInstance = Book.get(id)
-        if (!bookInstance) {
-            flash.message = message(code: 'default.not.found.message', args: [message(code: 'book.label', default: 'Book'), id])
+        def book = Book.get(id)
+        if (!book) {
             redirect(action: "list")
             return
         }
-
-        [bookInstance: bookInstance]
+        render(view: "edit", model: [book: book])
     }
 
-    def update(Long id, Long version) {
-        def bookInstance = Book.get(id)
-        if (!bookInstance) {
-            flash.message = message(code: 'default.not.found.message', args: [message(code: 'book.label', default: 'Book'), id])
-            redirect(action: "list")
-            return
-        }
-
-        if (version != null) {
-            if (bookInstance.version > version) {
-                bookInstance.errors.rejectValue("version", "default.optimistic.locking.failure",
-                          [message(code: 'book.label', default: 'Book')] as Object[],
-                          "Another user has updated this Book while you were editing")
-                render(view: "edit", model: [bookInstance: bookInstance])
-                return
-            }
-        }
-
-        bookInstance.properties = params
-
-        if (!bookInstance.save(flush: true)) {
-            render(view: "edit", model: [bookInstance: bookInstance])
-            return
-        }
-
-        flash.message = message(code: 'default.updated.message', args: [message(code: 'book.label', default: 'Book'), bookInstance.id])
-        redirect(action: "show", id: bookInstance.id)
-    }
 
     def delete(Long id) {
-        def bookInstance = Book.get(id)
-        if (!bookInstance) {
-            flash.message = message(code: 'default.not.found.message', args: [message(code: 'book.label', default: 'Book'), id])
-            redirect(action: "list")
-            return
+        Book book = Book.get(id)
+        Bookshelf.list().each{
+            it.removeFromBooks(book)
         }
-
-        try {
-            bookInstance.delete(flush: true)
-            flash.message = message(code: 'default.deleted.message', args: [message(code: 'book.label', default: 'Book'), id])
-            redirect(action: "list")
-        }
-        catch (DataIntegrityViolationException e) {
-            flash.message = message(code: 'default.not.deleted.message', args: [message(code: 'book.label', default: 'Book'), id])
-            redirect(action: "show", id: id)
-        }
+        bookService.delete(id)
+        redirect(action: "list")
     }
 }
