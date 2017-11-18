@@ -1,18 +1,16 @@
 package lybrary
 
-import org.springframework.dao.DataIntegrityViolationException
-
 class BookController {
 
     def bookService
 
     def index() {
-        if(Book.count==0) redirect(action: "create")
+        if (Book.count == 0) redirect(action: "create")
         else redirect(action: "list")
     }
 
     def list() {
-        render(view: "list", model: [authors: Book.list(params).sort {it.id}])
+        render(view: "list", model: [authors: Book.list(params).sort { it.id }])
     }
 
     def create() {
@@ -49,7 +47,7 @@ class BookController {
 
     def delete(Long id) {
         Book book = Book.get(id)
-        Bookshelf.list().each{
+        Bookshelf.list().each {
             it.removeFromBooks(book)
         }
         bookService.delete(id)

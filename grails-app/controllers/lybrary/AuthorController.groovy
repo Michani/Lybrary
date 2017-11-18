@@ -1,19 +1,16 @@
 package lybrary
 
-import org.codehaus.groovy.grails.plugins.InvalidVersionException
-import org.springframework.dao.DataIntegrityViolationException
-
 class AuthorController {
 
     def authorService
 
     def index() {
-        if(Author.count==0) redirect(action: "create")
+        if (Author.count == 0) redirect(action: "create")
         else redirect(action: "list")
     }
 
     def list() {
-        render(view: "list", model: [authors: Author.list(params).sort {it.id}])
+        render(view: "list", model: [authors: Author.list(params).sort { it.id }])
     }
 
     def create() {

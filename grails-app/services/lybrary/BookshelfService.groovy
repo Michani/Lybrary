@@ -1,7 +1,6 @@
 package lybrary
 
 import org.apache.commons.lang.math.RandomUtils
-import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
 
 class BookshelfService {
 

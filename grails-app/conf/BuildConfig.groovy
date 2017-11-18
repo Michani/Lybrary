@@ -19,23 +19,15 @@ grails.project.dependency.resolution = {
     }
     log "error" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     checksums true // Whether to verify checksums on resolve
-    legacyResolve false // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
+    legacyResolve true // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
 
     repositories {
         inherits true // Whether to inherit repository definitions from plugins
-
         grailsPlugins()
         grailsHome()
         grailsCentral()
-
-        mavenLocal()
         mavenCentral()
 
-        // uncomment these (or add new ones) to enable remote dependency resolution from public Maven repositories
-        //mavenRepo "http://snapshots.repository.codehaus.org"
-        //mavenRepo "http://repository.codehaus.org"
-        //mavenRepo "http://download.java.net/maven/2/"
-        //mavenRepo "http://repository.jboss.com/maven2/"
         mavenRepo "http://repo.grails.org/grails/repo"
         mavenRepo "http://repo.grails.org/grails/plugins/"
     }
@@ -43,6 +35,7 @@ grails.project.dependency.resolution = {
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes e.g.
         compile 'postgresql:postgresql:9.1-901.jdbc4'
+        compile "org.spockframework:spock-grails-support:0.7-groovy-2.0"
     }
 
     plugins {
@@ -58,5 +51,6 @@ grails.project.dependency.resolution = {
         build ":tomcat:$grailsVersion"
 
         compile ':cache:1.0.1'
+        compile(":spock:0.7") { exclude "spock-grails-support" }
     }
 }

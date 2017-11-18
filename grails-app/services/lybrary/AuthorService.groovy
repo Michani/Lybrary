@@ -1,8 +1,5 @@
 package lybrary
 
-import org.codehaus.groovy.grails.plugins.InvalidVersionException
-import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
-
 class AuthorService {
 
     def update(Long id, String name) {
@@ -18,7 +15,7 @@ class AuthorService {
         return new Author(params).save()
     }
 
-    def delete(Long id){
+    def delete(Long id) {
         def author = Author.get(id)
         if (author) {
             return author.delete()
