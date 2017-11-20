@@ -25,7 +25,7 @@ class BookshelfServiceTests {
         assert Bookshelf.count == 1
         assert Bookshelf.findByName('name') != null
         assert Book.count == 0
-        new Book([name: "Boo", author: "Auth"]).save()
+        new Book([name: "Boo", author: "Auth"]).save(failOnError: true)
         assert Book.count == 1
     }
 
