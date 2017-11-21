@@ -1,154 +1,81 @@
 package lybrary
 
-
-import org.junit.*
-import grails.test.mixin.*
+import grails.test.mixin.Mock
+import grails.test.mixin.TestFor
 
 @TestFor(BookController)
-@Mock(Book)
+@Mock([Book, BookService, Author, Bookshelf])
 class BookControllerTests {
 
-    def populateValidParams(params) {
-        assert params != null
-        // TODO: Populate valid properties like...
-        //params["name"] = 'someValidName'
-    }
-
     void testIndex() {
+        Author author = new Author(name: "Auth").save(failOnError: true)
+        new Book(name: "Boo1", author: author).save(failOnError: true)
+        new Book(name: "Boo2", author: author).save(failOnError: true)
         controller.index()
-        assert "/book/list" == response.redirectedUrl
+        assert response.redirectUrl == '/book/list'
+        assert Book.count == 2
     }
 
     void testList() {
-
-        def model = controller.list()
-
-        assert model.bookInstanceList.size() == 0
-        assert model.bookInstanceTotal == 0
+        controller.list()
+        assert view == '/book/list'
+        assert Book.count == 0
     }
 
     void testCreate() {
-        def model = controller.create()
-
-        assert model.bookInstance != null
+        controller.create()
+        assert view == '/book/create'
+        assert params.name == null
     }
 
     void testSave() {
+        Author author = new Author(name: "Auth").save(failOnError: true)
+        assert Book.count == 0
+        params.name = 'name'
+        params.author = author
         controller.save()
+        assert Book.count == 1
+        assert Book.findByName('name') != null
+        assert Book.findByName('anotherName') == null
+        assert Book.findByAuthor(author) != null
+        Long id = Book.findByName('name').id
+        assert response.redirectUrl == "/book/show/${id}"
+    }
 
-        assert model.bookInstance != null
-        assert view == '/book/create'
-
-        response.reset()
-
-        populateValidParams(params)
+    void testSaveUpdate() {
+        Author author = new Author(name: "Auth").save(failOnError: true)
+        Book book = new Book(name: "name", author: author).save(failOnError: true)
+        params.name = 'anotherName'
+        params.id = book.id
         controller.save()
-
-        assert response.redirectedUrl == '/book/show/1'
-        assert controller.flash.message != null
-        assert Book.count() == 1
+        assert Book.count == 1
+        assert Book.findByName('name') == null
+        assert Book.findByName('anotherName') != null
+        assert Book.findByAuthor(author) != null
+        assert response.redirectUrl == "/book/show/${book.id}"
     }
 
     void testShow() {
-        controller.show()
-
-        assert flash.message != null
-        assert response.redirectedUrl == '/book/list'
-
-        populateValidParams(params)
-        def book = new Book(params)
-
-        assert book.save() != null
-
-        params.id = book.id
-
-        def model = controller.show()
-
-        assert model.bookInstance == book
+        Author author = new Author(name: "Auth").save(failOnError: true)
+        Book book = new Book(name:  "name", author: author).save(failOnError: true)
+        controller.show(book.id)
+        assert view == "/book/show"
     }
 
     void testEdit() {
-        controller.edit()
-
-        assert flash.message != null
-        assert response.redirectedUrl == '/book/list'
-
-        populateValidParams(params)
-        def book = new Book(params)
-
-        assert book.save() != null
-
-        params.id = book.id
-
-        def model = controller.edit()
-
-        assert model.bookInstance == book
-    }
-
-    void testUpdate() {
-        controller.update()
-
-        assert flash.message != null
-        assert response.redirectedUrl == '/book/list'
-
-        response.reset()
-
-        populateValidParams(params)
-        def book = new Book(params)
-
-        assert book.save() != null
-
-        // test invalid parameters in update
-        params.id = book.id
-        //TODO: add invalid values to params object
-
-        controller.update()
-
-        assert view == "/book/edit"
-        assert model.bookInstance != null
-
-        book.clearErrors()
-
-        populateValidParams(params)
-        controller.update()
-
-        assert response.redirectedUrl == "/book/show/$book.id"
-        assert flash.message != null
-
-        //test outdated version number
-        response.reset()
-        book.clearErrors()
-
-        populateValidParams(params)
-        params.id = book.id
-        params.version = -1
-        controller.update()
-
-        assert view == "/book/edit"
-        assert model.bookInstance != null
-        assert model.bookInstance.errors.getFieldError('version')
-        assert flash.message != null
+        Author author = new Author(name: "Auth").save(failOnError: true)
+        Book book = new Book(name:  "name", author: author).save(failOnError: true)
+        controller.show(book.id)
+        assert view == "/book/show"
     }
 
     void testDelete() {
-        controller.delete()
-        assert flash.message != null
-        assert response.redirectedUrl == '/book/list'
-
-        response.reset()
-
-        populateValidParams(params)
-        def book = new Book(params)
-
-        assert book.save() != null
-        assert Book.count() == 1
-
-        params.id = book.id
-
-        controller.delete()
-
-        assert Book.count() == 0
-        assert Book.get(book.id) == null
-        assert response.redirectedUrl == '/book/list'
+        Author author = new Author(name: "Auth").save(failOnError: true)
+        assert Book.count == 0
+        Book book = new Book(name: "name", author: author).save(failOnError: true)
+        assert Book.count == 1
+        controller.delete(book.id)
+        assert Book.count == 0
+        assert response.redirectUrl == "/book/list"
     }
 }

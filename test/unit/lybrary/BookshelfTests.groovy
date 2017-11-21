@@ -24,4 +24,13 @@ class BookshelfTests {
         assert Bookshelf.findByName('name') == null
         assert Bookshelf.findByName('anotherName') != null
     }
+
+    void testDelete() {
+        assert Bookshelf.count == 0
+        Bookshelf bookshelf = new Bookshelf(name: "name").save(failOnError: true)
+        assert Bookshelf.count == 1
+        bookshelf.delete()
+        assert Bookshelf.count == 0
+        assert Bookshelf.findByName("name") == null
+    }
 }
