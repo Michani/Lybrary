@@ -18,6 +18,9 @@ class BookService {
     def delete(Long id){
         def book = Book.get(id)
         if (book) {
+            Bookshelf.list().each {
+                it.removeFromBooks(book)
+            }
             return book.delete()
         }
         throw new Exception("No such book")

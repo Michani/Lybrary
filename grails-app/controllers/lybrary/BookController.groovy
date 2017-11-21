@@ -47,9 +47,6 @@ class BookController {
 
     def delete(Long id) {
         Book book = Book.get(id)
-        Bookshelf.list().each {
-            it.removeFromBooks(book)
-        }
         bookService.delete(id)
         redirect(action: "list")
     }

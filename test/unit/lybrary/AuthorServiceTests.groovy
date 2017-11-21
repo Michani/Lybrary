@@ -5,39 +5,34 @@ import grails.test.mixin.TestFor
 
 
 
-@TestFor(BookService)
-@Mock([Bookshelf,Book,Author])
-class BookServiceTests {
+@TestFor(AuthorService)
+@Mock([Author,Book, Bookshelf, BookService])
+class AuthorServiceTests {
 
     void testUpdate() {
-        Author author = new Author(name: "Auth").save(failOnError: true)
-        assert Book.count == 0
-        Book book = service.create([name: 'name', author: author])
-        assert Book.count == 1
-        book.name = 'anotherName'
-        assert Book.findByName('anotherName') == null
-        assert Book.findByName('name') != null
-        assert Book.findByAuthor(author) != null
+        assert Author.count == 0
+        Author author = service.create(name: "Auth")
+        assert Author.count == 1
+        service.update(author.id, "anotherAuth")
+        assert Author.findByName("Auth") == null
+        assert Author.findByName("anotherAuth") != null
     }
 
     void testCreate() {
-        Author author = new Author(name: "Auth").save(failOnError: true)
-        assert Book.count == 0
-        assert Book.findByName('name') == null
-        assert Book.findByAuthor(author) == null
-        service.create([name : 'name', author: author])
-        assert Book.count == 1
-        assert Book.findByName('name') != null
-        assert Book.findByAuthor(author) != null
+        assert Author.count == 0
+        assert Author.findByName('Auth') == null
+        service.create([name : 'Auth'])
+        assert Author.count == 1
+        assert Author.findByName('Auth') != null
     }
 
     void testDelete() {
+        assert Author.count == 0
         Author author = new Author(name: "Auth").save(failOnError: true)
-        assert Book.count == 0
-        Book book = service.create([name : 'name', author: author])
-        assert Book.count == 1
-        assert Book.findByName('name') != null
-        service.delete(book.id)
-        assert Book.count == 0
+        assert Author.count == 1
+        Book book = new Book(name: "Boo", author: author).save(failOnError: true)
+        assert Author.findByName("Auth") != null
+        service.delete(author.id)
+        assert Author.count == 0
     }
 }

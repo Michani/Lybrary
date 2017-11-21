@@ -3,79 +3,70 @@ package lybrary
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 
-@TestFor(BookController)
-@Mock([Book, BookService, Author, Bookshelf])
-class BookControllerTests {
+@TestFor(AuthorController)
+@Mock([Book, AuthorService, Author])
+class AuthorControllerTests {
 
     void testIndex() {
-        Author author = new Author(name: "Auth").save(failOnError: true)
-        new Book(name: "Boo1", author: author).save(failOnError: true)
-        new Book(name: "Boo2", author: author).save(failOnError: true)
+        new Author(name: "Auth1").save(failOnError: true)
+        new Author(name: "Auth2").save(failOnError: true)
         controller.index()
-        assert response.redirectUrl == '/book/list'
-        assert Book.count == 2
+        assert response.redirectUrl == '/author/list'
+        assert Author.count == 2
     }
 
     void testList() {
         controller.list()
-        assert view == '/book/list'
-        assert Book.count == 0
+        assert view == '/author/list'
+        assert Author.count == 0
     }
 
     void testCreate() {
         controller.create()
-        assert view == '/book/create'
+        assert view == '/author/create'
         assert params.name == null
     }
 
     void testSave() {
-        Author author = new Author(name: "Auth").save(failOnError: true)
-        assert Book.count == 0
-        params.name = 'name'
-        params.author = author
+        assert Author.count == 0
+        params.name = 'Auth'
         controller.save()
-        assert Book.count == 1
-        assert Book.findByName('name') != null
-        assert Book.findByName('anotherName') == null
-        assert Book.findByAuthor(author) != null
-        Long id = Book.findByName('name').id
-        assert response.redirectUrl == "/book/show/${id}"
+        assert Author.count == 1
+        assert Author.findByName('Auth') != null
+        assert Author.findByName('anotherAuth') == null
+        Long id = Author.findByName('Auth').id
+        assert response.redirectUrl == "/author/show/${id}"
     }
 
     void testSaveUpdate() {
         Author author = new Author(name: "Auth").save(failOnError: true)
-        Book book = new Book(name: "name", author: author).save(failOnError: true)
-        params.name = 'anotherName'
-        params.id = book.id
+        params.name = 'anotherAuth'
+        params.id = author.id
         controller.save()
-        assert Book.count == 1
-        assert Book.findByName('name') == null
-        assert Book.findByName('anotherName') != null
-        assert Book.findByAuthor(author) != null
-        assert response.redirectUrl == "/book/show/${book.id}"
+        assert Author.count == 1
+        assert Author.findByName('Auth') == null
+        assert Author.findByName('anotherAuth') != null
+        assert response.redirectUrl == "/author/show/${author.id}"
     }
 
     void testShow() {
         Author author = new Author(name: "Auth").save(failOnError: true)
-        Book book = new Book(name:  "name", author: author).save(failOnError: true)
-        controller.show(book.id)
-        assert view == "/book/show"
+        controller.show(author.id)
+        assert view == "/author/show"
     }
 
     void testEdit() {
         Author author = new Author(name: "Auth").save(failOnError: true)
-        Book book = new Book(name:  "name", author: author).save(failOnError: true)
-        controller.show(book.id)
-        assert view == "/book/show"
+        controller.edit(author.id)
+        assert view == "/author/edit"
     }
 
     void testDelete() {
+        assert Author.count == 0
         Author author = new Author(name: "Auth").save(failOnError: true)
-        assert Book.count == 0
-        Book book = new Book(name: "name", author: author).save(failOnError: true)
-        assert Book.count == 1
-        controller.delete(book.id)
-        assert Book.count == 0
-        assert response.redirectUrl == "/book/list"
+        assert Author.count == 1
+        controller.delete(author.id)
+        assert Author.count == 0
+        assert response.redirectUrl == "/author/list"
     }
 }

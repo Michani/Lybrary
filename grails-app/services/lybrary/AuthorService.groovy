@@ -2,7 +2,7 @@ package lybrary
 
 class AuthorService {
 
-    BookController bookController
+    BookService bookService
 
     def update(Long id, String name) {
         Author author = Author.get(id)
@@ -18,12 +18,10 @@ class AuthorService {
     }
 
     def delete(Long id) {
-        Author author = Author.findById(id)
+        Author author = Author.get(id)
         if (author) {
             Book.list().each {
-                if(it.author == author) {
-                    bookController.delete(it.id)
-                }
+                if(it.author == author) bookService.delete(it.id)
             }
             return author.delete()
         }
