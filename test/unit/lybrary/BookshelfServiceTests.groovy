@@ -13,9 +13,9 @@ class BookshelfServiceTests {
         assert Bookshelf.count == 0
         Bookshelf bookshelf = service.create([name: 'name'])
         assert Bookshelf.count == 1
-        bookshelf.name='anotherName'
-        assert Bookshelf.findByName('anotherName') == null
-        assert Bookshelf.findByName('name') != null
+        service.update(bookshelf.id,'anotherName')
+        assert Bookshelf.findByName('anotherName') != null
+        assert Bookshelf.findByName('name') == null
     }
 
     void testAddBook() {
@@ -25,24 +25,28 @@ class BookshelfServiceTests {
         assert Bookshelf.count == 1
         assert Bookshelf.findByName('name') != null
         assert Author.count == 0
-        new Author([name: "Auth"]).save(failOnError: true)
+        Author author = new Author([name: "Auth"]).save()
         assert Author.count == 1
         assert Book.count == 0
-        new Book([name: "Boo", author: Author.findByName("Auth")]).save(failOnError: true)
+        Book book = new Book(name: "Boo", author: author).save()
         assert Book.count == 1
         assert bookshelf.books == null
-        service.addBook(bookshelf.id,Book.findByName("Boo").id)
-        assert bookshelf.books != null
+        service.addBook(bookshelf.id,book.id)
+        assert bookshelf.books.size() == 1
+        assert bookshelf.books.find().name == "Boo"
+        assert bookshelf.books.find().author == author
+        assert bookshelf.books.find().author.name == "Auth"
     }
 
     void testRemoveBook() {
         Bookshelf bookshelf = service.create(name: 'name')
-        new Author([name: "Auth"]).save(failOnError: true)
-        new Book([name: "Boo", author: Author.findByName("Auth")]).save(failOnError: true)
+        Author author = new Author([name: "Auth"]).save()
+        Book book = new Book([name: "Boo", author: author]).save()
         assert bookshelf.books == null
-        service.addBook(bookshelf.id, Book.findByName("Boo").id)
-        assert bookshelf.books != null
-        bookshelf.removeFromBooks(Book.findByName("Boo"))
+        service.addBook(bookshelf.id, book.id)
+        assert bookshelf.books.size() == 1
+        assert bookshelf.books.indexOf(book) == 0
+        service.removeBook(bookshelf.id,bookshelf.books.indexOf(book))
         assert bookshelf.books.size() == 0
     }
 
@@ -65,10 +69,12 @@ class BookshelfServiceTests {
 
     void testGenerate() {
         assert Bookshelf.count == 0
-        new Author([name: "Auth"]).save(failOnError: true)
-        new Book([name: "Boo", author: Author.findByName("Auth")]).save(failOnError: true)
+        Author author = new Author([name: "Auth"]).save()
+        new Book([name: "Boo", author: author]).save()
         service.generate()
         assert Bookshelf.count == 1
-        assert Bookshelf.findAll().books.size() != 0
+        assert Bookshelf.findAll().each {
+            it.books.name == "Boo"
+        }
     }
 }

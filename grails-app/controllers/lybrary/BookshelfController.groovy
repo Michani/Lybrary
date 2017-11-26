@@ -23,17 +23,20 @@ class BookshelfController {
         } else {
             bookshelf = bookshelfService.create(params)
         }
-        redirect(action: "show", id: bookshelf.id)
+        return redirect(action: "show", id: bookshelf.id)
+
     }
 
     def addBook(Long id, Long bookId) {
         bookshelfService.addBook(id, bookId)
-        redirect(action: "show", id: id)
+        return redirect(action: "show", id: id)
+
     }
 
     def removeBook(Long id, Integer bookIndex) {
         bookshelfService.removeBook(id, bookIndex)
-        redirect(action: "show", id: id)
+        return list()
+
     }
 
     def show(Long id) {
@@ -47,19 +50,21 @@ class BookshelfController {
     def edit(Long id) {
         def bookshelf = Bookshelf.get(id)
         if (!bookshelf) {
-            redirect(action: "list")
-            return
+            return redirect(action: "list")
+
         }
         render(view: "edit", model: [bookshelf: bookshelf])
     }
 
     def delete(Long id) {
         bookshelfService.remove(id)
-        redirect(action: "list")
+        return list()
+
     }
 
     def generate() {
         bookshelfService.generate()
-        redirect(action: "list")
+        return list()
+
     }
 }

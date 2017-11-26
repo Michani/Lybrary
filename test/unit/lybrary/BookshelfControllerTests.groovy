@@ -22,10 +22,14 @@ class BookshelfControllerTests {
     }
 
     void testCreate() {
+        new Bookshelf(name: "name").save()
         controller.create()
         assert view == '/bookshelf/create'
         assert params.name == null
         assert params.books == null
+        assert Bookshelf.findAll().each {
+            it.id != params.id
+        }
     }
 
     void testSave() {
@@ -51,33 +55,35 @@ class BookshelfControllerTests {
     }
 
     void testAddBook() {
-        Bookshelf bookshelf = new Bookshelf(name: "name").save(failOnError: true)
-        Author author = new Author(name: "Auth").save(failOnError: true)
-        Book book = new Book(name: "Boo", author: author).save(failOnError: true)
+        Bookshelf bookshelf = new Bookshelf(name: "name").save()
+        Author author = new Author(name: "Auth").save()
+        Book book = new Book(name: "Boo", author: author).save()
+        assert bookshelf.books == null
         controller.addBook(bookshelf.id, book.id)
+        assert bookshelf.books.size() == 1
         assert bookshelf.books.find().name == "Boo"
         assert response.redirectUrl == "/bookshelf/show/${bookshelf.id}"
     }
 
     void testRemoveBook() {
-        Bookshelf bookshelf = new Bookshelf(name: "name").save(failOnError: true)
-        Author author = new Author(name: "Auth").save(failOnError: true)
-        Book book = new Book(name: "Boo", author: author).save(failOnError: true)
+        Bookshelf bookshelf = new Bookshelf(name: "name").save()
+        Author author = new Author(name: "Auth").save()
+        Book book = new Book(name: "Boo", author: author).save()
         controller.addBook(bookshelf.id, book.id)
         assert bookshelf.books.size() == 1
-        bookshelf.removeFromBooks(book)
+        controller.removeBook(bookshelf.id, bookshelf.books.indexOf(book))
         assert bookshelf.books.size() == 0
-        assert response.redirectUrl == "/bookshelf/show/${bookshelf.id}"
+        assert view == "/bookshelf/list"
     }
 
     void testShow() {
-        Bookshelf bookshelf = new Bookshelf(name:  "name").save(failOnError: true)
+        Bookshelf bookshelf = new Bookshelf(name:  "name").save()
         controller.show(bookshelf.id)
         assert view == "/bookshelf/show"
     }
 
     void testEdit() {
-        Bookshelf bookshelf = new Bookshelf(name: "name").save(failOnError: true)
+        Bookshelf bookshelf = new Bookshelf(name: "name").save()
         controller.edit(bookshelf.id)
         assert view == "/bookshelf/edit"
     }
@@ -92,8 +98,8 @@ class BookshelfControllerTests {
     }
 
     void testGenerate() {
-        Author author = new Author(name: "Auth").save(failOnError: true)
-        Book book = new Book(name: "Boo", author: author).save(failOnError: true)
+        Author author = new Author(name: "Auth").save()
+        new Book(name: "Boo", author: author).save()
         assert Bookshelf.count == 0
         controller.generate()
         assert Bookshelf.count == 1

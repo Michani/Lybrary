@@ -5,8 +5,8 @@ class BookController {
     def bookService
 
     def index() {
-        if (Book.count == 0) redirect(action: "create")
-        else redirect(action: "list")
+        if (Book.count == 0) return redirect(action: "create")
+        else return redirect(action: "list")
     }
 
     def list() {
@@ -24,7 +24,7 @@ class BookController {
         } else {
             book = bookService.create(params)
         }
-        redirect(action: "show", id: book.id)
+        return redirect(action: "show", id: book.id)
     }
 
     def show(Long id) {
@@ -38,16 +38,14 @@ class BookController {
     def edit(Long id) {
         def book = Book.get(id)
         if (!book) {
-            redirect(action: "list")
-            return
+            return redirect(action: "list")
         }
         render(view: "edit", model: [book: book])
     }
 
 
     def delete(Long id) {
-        Book book = Book.get(id)
         bookService.delete(id)
-        redirect(action: "list")
+        return redirect(action: "list")
     }
 }

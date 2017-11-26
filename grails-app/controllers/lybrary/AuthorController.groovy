@@ -5,8 +5,8 @@ class AuthorController {
     def authorService
 
     def index() {
-        if (Author.count == 0) redirect(action: "create")
-        else redirect(action: "list")
+        if (Author.count == 0) return redirect(action: "create")
+        else return redirect(action: "list")
     }
 
     def list() {
@@ -24,7 +24,7 @@ class AuthorController {
         } else {
             author = authorService.create(params)
         }
-        redirect(action: "show", id: author.id)
+        return redirect(action: "show", id: author.id)
     }
 
     def show(Long id) {
@@ -38,8 +38,7 @@ class AuthorController {
     def edit(Long id) {
         def author = Author.get(id)
         if (!author) {
-            redirect(action: "list")
-            return
+            return redirect(action: "list")
         }
         render(view: "edit", model: [author: author])
     }
@@ -47,6 +46,6 @@ class AuthorController {
 
     def delete(Long id) {
         authorService.delete(id)
-        redirect(action: "list")
+        return redirect(action: "list")
     }
 }

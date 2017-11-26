@@ -14,9 +14,9 @@ class BookServiceTests {
         assert Book.count == 0
         Book book = service.create([name: 'name', author: author])
         assert Book.count == 1
-        book.name = 'anotherName'
-        assert Book.findByName('anotherName') == null
-        assert Book.findByName('name') != null
+        service.update(book.id,"anotherName")
+        assert Book.findByName('anotherName') != null
+        assert Book.findByName('name') == null
         assert Book.findByAuthor(author) != null
     }
 
@@ -39,5 +39,6 @@ class BookServiceTests {
         assert Book.findByName('name') != null
         service.delete(book.id)
         assert Book.count == 0
+        assert Book.findByName('name') == null
     }
 }
