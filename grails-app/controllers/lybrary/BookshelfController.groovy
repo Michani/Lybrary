@@ -35,7 +35,7 @@ class BookshelfController {
 
     def removeBook(Long id, Integer bookIndex) {
         bookshelfService.removeBook(id, bookIndex)
-        return list()
+        return redirect(action: "show",id: id)
 
     }
 
@@ -63,8 +63,8 @@ class BookshelfController {
     }
 
     def generate() {
-        bookshelfService.generate()
-        return list()
+        Bookshelf bookshelf = bookshelfService.generate()
+        render(view: "show", model: [bookshelf: bookshelf])
 
     }
 }

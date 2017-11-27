@@ -13,6 +13,7 @@ class BookshelfServiceTests {
         assert Bookshelf.count == 0
         Bookshelf bookshelf = service.create([name: 'name'])
         assert Bookshelf.count == 1
+        bookshelf = Bookshelf.get(bookshelf.id)
         service.update(bookshelf.id,'anotherName')
         assert Bookshelf.findByName('anotherName') != null
         assert Bookshelf.findByName('name') == null
@@ -30,6 +31,7 @@ class BookshelfServiceTests {
         assert Book.count == 0
         Book book = new Book(name: "Boo", author: author).save()
         assert Book.count == 1
+        bookshelf = Bookshelf.get(bookshelf.id)
         assert bookshelf.books == null
         service.addBook(bookshelf.id,book.id)
         assert bookshelf.books.size() == 1
@@ -42,6 +44,7 @@ class BookshelfServiceTests {
         Bookshelf bookshelf = service.create(name: 'name')
         Author author = new Author([name: "Auth"]).save()
         Book book = new Book([name: "Boo", author: author]).save()
+        bookshelf = Bookshelf.get(bookshelf.id)
         assert bookshelf.books == null
         service.addBook(bookshelf.id, book.id)
         assert bookshelf.books.size() == 1
@@ -63,6 +66,7 @@ class BookshelfServiceTests {
         Bookshelf bookshelf = service.create([name : 'name'])
         assert Bookshelf.count == 1
         assert Bookshelf.findByName('name') != null
+        bookshelf = Bookshelf.get(bookshelf.id)
         service.remove(bookshelf.id)
         assert Bookshelf.count == 0
     }
@@ -74,7 +78,7 @@ class BookshelfServiceTests {
         service.generate()
         assert Bookshelf.count == 1
         assert Bookshelf.findAll().each {
-            it.books.name == "Boo"
+            if(it.books.size()!= 0) it.books.name == "Boo"
         }
     }
 }

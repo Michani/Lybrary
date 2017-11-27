@@ -22,14 +22,8 @@ class BookshelfControllerTests {
     }
 
     void testCreate() {
-        new Bookshelf(name: "name").save()
         controller.create()
         assert view == '/bookshelf/create'
-        assert params.name == null
-        assert params.books == null
-        assert Bookshelf.findAll().each {
-            it.id != params.id
-        }
     }
 
     void testSave() {
@@ -60,8 +54,9 @@ class BookshelfControllerTests {
         Book book = new Book(name: "Boo", author: author).save()
         assert bookshelf.books == null
         controller.addBook(bookshelf.id, book.id)
+        bookshelf = Bookshelf.get(bookshelf.id)
         assert bookshelf.books.size() == 1
-        assert bookshelf.books.find().name == "Boo"
+        assert bookshelf.books.get(0).name == "Boo"
         assert response.redirectUrl == "/bookshelf/show/${bookshelf.id}"
     }
 
@@ -71,21 +66,32 @@ class BookshelfControllerTests {
         Book book = new Book(name: "Boo", author: author).save()
         controller.addBook(bookshelf.id, book.id)
         assert bookshelf.books.size() == 1
-        controller.removeBook(bookshelf.id, bookshelf.books.indexOf(book))
+        controller.removeBook(bookshelf.id, 0)
+        bookshelf = Bookshelf.get(bookshelf.id)
         assert bookshelf.books.size() == 0
-        assert view == "/bookshelf/list"
+        assert view == "/bookshelf/show/${bookshelf.id}"
     }
 
     void testShow() {
         Bookshelf bookshelf = new Bookshelf(name:  "name").save()
-        controller.show(bookshelf.id)
-        assert view == "/bookshelf/show"
+        if(!bookshelf)
+            assert response.redirectUrl == "/bookshelf/list"
+        else{
+            controller.show(bookshelf.id)
+            assert view == "/bookshelf/show"
+            assert model.bookshelf == bookshelf
+        }
     }
 
     void testEdit() {
         Bookshelf bookshelf = new Bookshelf(name: "name").save()
-        controller.edit(bookshelf.id)
-        assert view == "/bookshelf/edit"
+        if(!bookshelf)
+            assert response.redirectUrl == "/bookshelf/list"
+        else{
+            controller.edit(bookshelf.id)
+            assert view == "/bookshelf/edit"
+            assert model.bookshelf == bookshelf
+        }
     }
 
     void testDelete() {
@@ -94,7 +100,7 @@ class BookshelfControllerTests {
         assert Bookshelf.count == 1
         controller.delete(bookshelf.id)
         assert Bookshelf.count == 0
-        assert response.redirectUrl == "/bookshelf/list"
+        assert view == "/bookshelf/list"
     }
 
     void testGenerate() {
@@ -103,6 +109,8 @@ class BookshelfControllerTests {
         assert Bookshelf.count == 0
         controller.generate()
         assert Bookshelf.count == 1
-        assert response.redirectUrl == "/bookshelf/list"
+        Bookshelf bookshelf = Bookshelf.find{}
+        assert view == "/bookshelf/show"
+        assert model.bookshelf == bookshelf
     }
 }

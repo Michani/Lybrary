@@ -8,71 +8,78 @@ import grails.test.mixin.TestFor
 class BookControllerTests {
 
     void testIndex() {
-        Author author = new Author(name: "Auth").save(failOnError: true)
-        new Book(name: "Boo1", author: author).save(failOnError: true)
-        new Book(name: "Boo2", author: author).save(failOnError: true)
-        controller.index()
-        assert response.redirectUrl == '/book/list'
-        assert Book.count == 2
+        if(Book.count == 0) response.redirectUrl == '/book/create'
+        else response.redirectUrl == '/book/list'
     }
 
     void testList() {
         controller.list()
         assert view == '/book/list'
-        assert Book.count == 0
+        assert model.authors.size() == 0
     }
 
     void testCreate() {
         controller.create()
         assert view == '/book/create'
-        assert params.name == null
     }
 
     void testSave() {
-        Author author = new Author(name: "Auth").save(failOnError: true)
+        Author author = new Author(name: "Auth").save()
         assert Book.count == 0
-        params.name = 'name'
+        params.name = 'Boo'
         params.author = author
         controller.save()
         assert Book.count == 1
-        assert Book.findByName('name') != null
-        assert Book.findByName('anotherName') == null
+        assert Book.findByName('Boo') != null
+        assert Book.findByName('anotherBoo') == null
         assert Book.findByAuthor(author) != null
-        Long id = Book.findByName('name').id
+        Long id = Book.findByName('Boo').id
         assert response.redirectUrl == "/book/show/${id}"
     }
 
-    void testSaveUpdate() {
-        Author author = new Author(name: "Auth").save(failOnError: true)
-        Book book = new Book(name: "name", author: author).save(failOnError: true)
-        params.name = 'anotherName'
+    void testUpdate() {
+        Author author = new Author(name: "Auth").save()
+        Book book = new Book(name: "Boo", author: author).save()
+        assert Book.count == 1
+        book = Book.get(book.id)
+        params.name = 'anotherBoo'
         params.id = book.id
         controller.save()
-        assert Book.count == 1
-        assert Book.findByName('name') == null
-        assert Book.findByName('anotherName') != null
+        assert Book.findByName('Boo') == null
+        assert Book.findByName('anotherBoo') != null
         assert Book.findByAuthor(author) != null
         assert response.redirectUrl == "/book/show/${book.id}"
     }
 
     void testShow() {
-        Author author = new Author(name: "Auth").save(failOnError: true)
-        Book book = new Book(name:  "name", author: author).save(failOnError: true)
+        Author author = new Author(name: "Auth").save()
+        Book book = new Book(name:  "Boo", author: author).save()
         controller.show(book.id)
-        assert view == "/book/show"
+        if(!book) assert response.redirectUrl == '/book/list'
+        else{
+            book = Book.get(book.id)
+            assert view == "/book/show"
+            assert model.book == book
+        }
+
     }
 
     void testEdit() {
-        Author author = new Author(name: "Auth").save(failOnError: true)
-        Book book = new Book(name:  "name", author: author).save(failOnError: true)
-        controller.show(book.id)
-        assert view == "/book/show"
+        Author author = new Author(name: "Auth").save()
+        Book book = new Book(name:  "Boo", author: author).save()
+        controller.edit(book.id)
+        if(!book) assert response.redirectUrl == '/book/list'
+        else{
+            book = Book.get(book.id)
+            assert view == "/book/edit"
+            assert model.book == book
+        }
     }
 
     void testDelete() {
-        Author author = new Author(name: "Auth").save(failOnError: true)
+        Author author = new Author(name: "Auth").save()
         assert Book.count == 0
-        Book book = new Book(name: "name", author: author).save(failOnError: true)
+        Book book = new Book(name: "Boo", author: author).save()
         assert Book.count == 1
         controller.delete(book.id)
         assert Book.count == 0

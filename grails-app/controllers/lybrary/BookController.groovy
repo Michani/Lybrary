@@ -45,7 +45,11 @@ class BookController {
 
 
     def delete(Long id) {
-        bookService.delete(id)
+        def book = Book.get(id)
+        if(book)
+        {
+            bookService.delete(book.id)
+        }
         return redirect(action: "list")
     }
 }

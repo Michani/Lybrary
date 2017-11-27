@@ -8,23 +8,19 @@ import grails.test.mixin.TestFor
 class AuthorControllerTests {
 
     void testIndex() {
-        new Author(name: "Auth1").save(failOnError: true)
-        new Author(name: "Auth2").save(failOnError: true)
-        controller.index()
-        assert response.redirectUrl == '/author/list'
-        assert Author.count == 2
+        if(Author.count == 0) response.redirectUrl == '/author/create'
+        else response.redirectUrl == '/author/list'
     }
 
     void testList() {
         controller.list()
         assert view == '/author/list'
-        assert Author.count == 0
+        assert model.authors.size() == 0
     }
 
     void testCreate() {
         controller.create()
         assert view == '/author/create'
-        assert params.name == null
     }
 
     void testSave() {
@@ -38,27 +34,38 @@ class AuthorControllerTests {
         assert response.redirectUrl == "/author/show/${id}"
     }
 
-    void testSaveUpdate() {
-        Author author = new Author(name: "Auth").save(failOnError: true)
+    void testUpdate() {
+        Author author = new Author(name: "Auth").save()
+        assert Author.count == 1
+        author = Author.get(author.id)
         params.name = 'anotherAuth'
         params.id = author.id
         controller.save()
-        assert Author.count == 1
         assert Author.findByName('Auth') == null
         assert Author.findByName('anotherAuth') != null
         assert response.redirectUrl == "/author/show/${author.id}"
     }
 
     void testShow() {
-        Author author = new Author(name: "Auth").save(failOnError: true)
+        Author author = new Author(name: "Auth").save()
         controller.show(author.id)
-        assert view == "/author/show"
+        if(!author) assert response.redirectUrl == '/author/list'
+        else{
+            author = Author.get(author.id)
+            assert view == "/author/show"
+            assert model.author == author
+        }
     }
 
     void testEdit() {
-        Author author = new Author(name: "Auth").save(failOnError: true)
+        Author author = new Author(name: "Auth").save()
         controller.edit(author.id)
-        assert view == "/author/edit"
+        if(!author) assert response.redirectUrl == '/author/list'
+        else{
+            author = Author.get(author.id)
+            assert view == "/author/edit"
+            assert model.author == author
+        }
     }
 
     void testDelete() {
