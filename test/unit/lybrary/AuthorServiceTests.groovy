@@ -11,21 +11,28 @@ class AuthorServiceTests {
 
     void testUpdate() {
         assert Author.count == 0
-        Author author = service.create(name: "Auth")
+        Author author = new Author(name: "Auth").save()
+        assert Author.count == 1
+        service.update(author.id, "anotherAuth")
         assert Author.count == 1
         author = Author.get(author.id)
+        assert author != null
+        assert author.name == 'anotherAuth'
+    }
+
+    void testWrongUpdate() {
+        assert Author.count == 0
+        new Author(name: "Auth").save()
+        assert Author.count == 1
         try{
-            service.update(author.id, "anotherAuth")
-            assert Author.findByName("Auth") == null
-            assert Author.findByName("anotherAuth") != null
-        } catch (Exception e){
-            assert e.toString() == "No such book"
+            service.update(2, 'anotherAuth')
+        }catch (Exception e){
+            assert e.message == "No such author"
         }
     }
 
     void testCreate() {
         assert Author.count == 0
-        assert Author.findByName('Auth') == null
         service.create([name : 'Auth'])
         assert Author.count == 1
         assert Author.findByName('Auth') != null
@@ -33,15 +40,23 @@ class AuthorServiceTests {
 
     void testDelete() {
         assert Author.count == 0
-        Author author = service.create(name: "Auth")
+        Author author = new Author(name: "Auth").save()
         assert Author.count == 1
-        assert Author.findByName("Auth") != null
         author = Author.get(author.id)
-        try{
-            service.delete(author.id)
-            assert Author.count == 0
+        service.delete(author.id)
+        assert Author.count == 0
+        author = Author.get(author.id)
+        assert author == null
+    }
+
+    void testWrongDelete() {
+        assert Author.count == 0
+        new Author(name: "Auth").save()
+        assert Author.count == 1
+        try {
+            service.delete(2)
         }catch (Exception e){
-            assert e.toString() == "No such book"
+            assert e.message == "No such author"
         }
     }
 }

@@ -43,9 +43,12 @@ class AuthorController {
         render(view: "edit", model: [author: author])
     }
 
-
     def delete(Long id) {
+        def author = Author.get(id)
+        if (!author) {
+            return redirect(action: "list")
+        }
         authorService.delete(id)
-        return redirect(action: "list")
+        return redirect(action: "index")
     }
 }

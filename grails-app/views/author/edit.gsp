@@ -2,15 +2,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Bookshelf</title>
+    <title>Author</title>
 </head>
 
 <body>
 
 <div>
-    <h1>Edit bookshelf #${bookshelf.id}</h1>
+    <h1>Edit author ${author.name}</h1>
     <g:form action="save">
-        <g:hiddenField name="id" value="${bookshelf.id}"/>
+        <g:hiddenField name="id" value="${author.id}"/>
         <g:render template="form"/>
         <g:actionSubmit action="save" value="Update"/>
     </g:form>

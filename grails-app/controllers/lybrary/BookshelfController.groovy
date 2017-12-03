@@ -5,7 +5,8 @@ class BookshelfController {
     BookshelfService bookshelfService
 
     def index() {
-        return list()
+        if (Bookshelf.count == 0) return redirect(action: "create")
+        else return redirect(action: "list")
     }
 
     def list() {
@@ -57,8 +58,13 @@ class BookshelfController {
     }
 
     def delete(Long id) {
-        bookshelfService.remove(id)
-        return list()
+        Bookshelf bookshelf = Bookshelf.get(id)
+        if(!bookshelf){
+            return redirect(action: "list")
+        } else{
+            bookshelfService.remove(bookshelf.id)
+            return redirect(action: "index")
+        }
 
     }
 

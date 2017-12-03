@@ -6,11 +6,15 @@ class BookshelfService {
 
     def addBook(Long id, Long bookId) {
         Bookshelf bookshelf = Bookshelf.get(id)
-        if (bookshelf) {
+        Book book = Book.get(bookId)
+        if (bookshelf && book) {
             bookshelf.addToBooks(Book.get(bookId))
             return bookshelf.save()
+        }else{
+            if(bookshelf && !book) throw new Exception("No such book")
+            if(!bookshelf && book) throw new Exception("No such bookshelf")
+            throw new Exception("Wrong parameters")
         }
-        throw new Exception("No such bookshelf")
     }
 
     def removeBook(Long id, Integer bookIndex) {

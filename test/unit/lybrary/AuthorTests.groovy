@@ -9,7 +9,7 @@ class AuthorTests {
     void testCreate() {
         assert Author.count == 0
         assert Author.findByName('Auth') == null
-        new Author(name: "Auth").save(failOnError: true)
+        new Author(name: "Auth").save()
         assert Author.count == 1
         assert Author.findByName('Auth') != null
     }
@@ -17,7 +17,7 @@ class AuthorTests {
     void testUpdate() {
         assert Author.count == 0
         assert Author.findByName('Auth') == null
-        Author author = new Author(name: "Auth").save(failOnError: true)
+        Author author = new Author(name: "Auth").save()
         assert Author.count == 1
         assert Author.findByName('Auth') != null
         author.name = 'anotherAuth'

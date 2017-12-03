@@ -10,7 +10,7 @@ class BookController {
     }
 
     def list() {
-        render(view: "list", model: [authors: Book.list(params).sort { it.id }])
+        render(view: "list", model: [books: Book.list(params).sort { it.id }])
     }
 
     def create() {
@@ -46,10 +46,11 @@ class BookController {
 
     def delete(Long id) {
         def book = Book.get(id)
-        if(book)
+        if(!book)
         {
-            bookService.delete(book.id)
+            return redirect(action: "list")
         }
-        return redirect(action: "list")
+        bookService.delete(book.id)
+        return redirect(action: "index")
     }
 }
